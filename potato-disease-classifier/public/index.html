@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#4CAF50" />
+    <meta
+      name="description"
+      content="Potato Disease Classifier: Upload a potato leaf image to detect Early Blight, Late Blight, or Healthy conditions."
+    />
+    <link rel="icon" href="%PUBLIC_URL%/potat.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/potat.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Potato Disease Classifier</title>
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        justify-content: space-between;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/backimg.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        z-index: -1;
+        opacity: 0.9;
+      }
+
+      header {
+        background-color: rgba(76, 175, 80, 0.9);
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 2rem;
+      }
+
+      main {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        flex-grow: 1; /* Ensures the content section takes available space */
+      }
+
+      .container {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      footer {
+        text-align: center;
+        padding: 10px 20px;
+        background-color: rgba(76, 175, 80, 0.9);
+        color: white;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+        margin-top: auto; /* Makes the footer stick to the bottom */
+      }
+
+      .btn {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        margin: 10px 0;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #45a049;
+      }
+
+      .upload-area {
+        border: 2px dashed #4caf50;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        margin: 20px auto;
+        background-color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        max-width: 400px;
+        transition: background-color 0.3s ease;
+        position: relative;
+        min-height: 200px; /* Set a fixed height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .upload-area.active {
+        background-color: rgba(76, 175, 80, 0.3);
+      }
+
+      .upload-area p {
+        font-size: 1.2rem;
+        color: #4caf50;
+      }
+
+      .upload-area input[type="file"] {
+        display: none;
+      }
+
+      .image-preview {
+        width: 100%;
+        max-height: 300px; /* Reduced max-height to keep the image smaller */
+        object-fit: contain; /* Ensures the image fits properly */
+        border-radius: 10px;
+        display: block;
+        margin-top: 20px;
+      }
+
+      /* Ensures the footer sticks to the bottom of the page */
+      .content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+
+      .result {
+        margin-top: 20px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #4caf50;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #e8f5e9; /* Light green background for healthy */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out, background-color 0.3s ease;
+      }
+
+      /* Highlight for healthy class */
+      .healthy {
+        background-color: #e8f5e9;
+        color: #388e3c;
+      }
+
+      /* Highlight for blight class */
+      .blight {
+        background-color: #ffebee;
+        color: #d32f2f;
+      }
+
+      /* Hover animation */
+      .result:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Potato Disease Classifier</h1>
+    </header>
+
+    <main class="content">
+      <div class="container">
+        <h2>Upload Potato Leaf Image</h2>
+        <p>Classify your potato leaf into Early Blight, Late Blight, or Healthy conditions.</p>
+
+        <!-- Unified Upload Area for Both Drag-and-Drop and File Selection -->
+        <div
+          id="uploadArea"
+          class="upload-area"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave()"
+          ondrop="handleDrop(event)"
+        >
+          <p id="uploadText">Drag and Drop an Image Here or Click to Select</p>
+          <input type="file" id="fileInput" onchange="handleFileChange(event)" />
+          <button type="button" onclick="document.getElementById('fileInput').click()">
+            Click to Select Image
+          </button>
+
+          <!-- Image Preview will appear inside this area -->
+          <img id="imagePreview" class="image-preview" style="display:none;" />
+        </div>
+
+        <button class="btn" onclick="handleSubmit()">Classify</button>
+
+        <!-- Show the result after classification -->
+        <div id="result" class="result"></div>
+      </div>
+    </main>
+
+    <footer>
+      &copy; 2024 Potato Disease Classifier. All rights reserved.
+    </footer>
+
+    <script>
+      let image = null;
+
+      // Handle when the user drags a file over the dropzone
+      function handleDragOver(event) {
+        event.preventDefault();
+        document.getElementById('uploadArea').classList.add('active');
+      }
+
+      // Handle when the user leaves the dropzone
+      function handleDragLeave() {
+        document.getElementById('uploadArea').classList.remove('active');
+      }
+
+      // Handle when a file is dropped into the dropzone
+      function handleDrop(event) {
+        event.preventDefault();
+        document.getElementById('uploadArea').classList.remove('active');
+        const file = event.dataTransfer.files[0];
+        if (file) {
+          displayImage(file);
+        }
+      }
+
+      // Handle when the user selects a file through the input
+      function handleFileChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+          displayImage(file);
+        }
+      }
+
+      // Display the selected image and adjust the area
+      function displayImage(file) {
+        image = file;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Display the uploaded image inside the same area
+          const imageElement = document.getElementById('imagePreview');
+          imageElement.src = reader.result;
+          imageElement.style.display = 'block'; // Show the image
+          document.getElementById('uploadText').style.display = 'none'; // Hide the text
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Handle the classification submission
+      function handleSubmit() {
+        if (!image) {
+          alert("Please upload an image.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", image);
+
+        fetch("http://localhost:8001/predict", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let resultClass = 'healthy'; // Default class
+            let resultText = `
+              <strong>Class:</strong> ${data.class} <br/>
+              <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%
+            `;
+
+            // Change result class and background color based on the classification
+            if (data.class === 'Early Blight' || data.class === 'Late Blight') {
+              resultClass = 'blight'; // For diseased leaves
+            }
+
+            // Apply the class to change background color
+            document.getElementById('result').className = `result ${resultClass}`;
+            document.getElementById('result').innerHTML = resultText;
+          })
+          .catch((error) => {
+            console.error(error);
+            document.getElementById('result').textContent = 'Error processing the image.';
+          });
+      }
+    </script>
+  </body>
+</html>
