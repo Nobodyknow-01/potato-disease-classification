@@ -27,9 +27,14 @@ MODEL = tf.keras.models.load_model("../models/new_fine_tuned_model.keras")
 CLASS_NAMES = ["Early Blight", "Healthy", "Late Blight"]
 
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Potato Disease Classification API"}
+
 @app.get("/ping")
 async def ping():
     return "Hello, I am alive"
+
 
 
 # Read and preprocess the image
