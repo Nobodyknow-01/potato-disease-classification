@@ -5,6 +5,7 @@ import numpy as np
 from io import BytesIO
 from PIL import Image
 import tensorflow as tf
+import os
 
 # Initialize FastAPI
 app = FastAPI()
@@ -22,9 +23,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Load the trained model
-MODEL = tf.keras.models.load_model("../models/new_fine_tuned_model.keras")
+model_path = os.path.join(os.path.dirname(__file__), "..", "models", "new_fine_tuned_model.keras")
+MODEL = tf.keras.models.load_model(model_path)
 CLASS_NAMES = ["Early Blight", "Healthy", "Late Blight"]
+
 
 
 @app.get("/")
