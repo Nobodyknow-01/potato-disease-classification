@@ -25,8 +25,8 @@ app.add_middleware(
 
 
 # Load the trained model
-model_path = os.path.join(os.path.dirname(__file__), "..", "models", "new_fine_tuned_model.keras")
-MODEL = tf.keras.models.load_model(model_path)
+MODEL = tf.keras.models.load_model("../models/new_fine_tuned_model.keras")
+
 CLASS_NAMES = ["Early Blight", "Healthy", "Late Blight"]
 
 
@@ -49,6 +49,9 @@ def read_file_as_image(data) -> np.ndarray:
     return image
 
 
+
+
+
 # Prediction endpoint
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
@@ -62,10 +65,12 @@ async def predict(file: UploadFile = File(...)):
     return {
         'class': predicted_class,
         'confidence': float(confidence)
+
     }
 
 
 # Run the API
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=8001)
+
 
